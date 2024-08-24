@@ -1,0 +1,9 @@
+*.sw?
+.bundle
+.git/
+*.DS_Store
+
+Gemfile.lock
+
+
+
