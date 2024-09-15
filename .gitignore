@@ -1,5 +1,6 @@
 *.sw?
 .bundle
+.gem
 .git/
 *.DS_Store
 
