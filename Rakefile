@@ -16,9 +16,11 @@ RuboCop::RakeTask.new(:fix) do |task|
 end
 
 task :run do
-  # ruby lib/
+  # ruby lib/ruby_scrobbler.rb
 end
 
 task :test do
   ruby 'test/test_music_app.rb'
+  ruby 'test/test_scrobbler_database_interface.rb'
+  # ruby test/test_ruby_scrobbler.rb
 end

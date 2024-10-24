@@ -3,6 +3,11 @@ Gem::Specification.new do |s|
   s.version  = "0.0.0"
   s.summary  = "Last.fm music scrobbling utility"
   s.authors  = "heckat"
-  s.files    = []
-  s.homepage = ""
+  s.files    = [
+                "lib/music_app.rb",
+                "lib/scrobbler_database.rb",
+                "lib/scrobbler_database_interface.rb",
+                "lib/scrobbler_database_setup.rb"
+               ]
+  s.homepage = "http://127.0.0.1/"
 end
