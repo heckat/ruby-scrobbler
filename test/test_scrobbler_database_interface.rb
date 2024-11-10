@@ -20,12 +20,10 @@ class TestScrobblerDatabaseInterface < Minitest::Test
     @album = 'Diamond Life'
     @status = ScrobblerDatabase::READY_TO_SEND
     @timestamp = Time.now.getutc.strftime('%Y-%m-%d %H:%M:%S')
-    @user_metadata = {
-      type: ScrobblerDatabase::USER_TYPE,
-      datetime_obtained: @timestamp,
-      status: ScrobblerDatabase::AUTH_ACTIVE
+    @user_fields = {
+      username: 'test_nobody_user', session_key: 'test_nobody_key', salt: 'abcd1234',
+      type: ScrobblerDatabase::USER_TYPE, datetime_obtained: @timestamp, status: ScrobblerDatabase::AUTH_ACTIVE
     }
-    @user_credentials = { username: 'test_nobody_user', session_key: 'test_nobody_key', salt: 'abcd1234' }
   end
 
   def test_track_insert
@@ -40,23 +38,19 @@ class TestScrobblerDatabaseInterface < Minitest::Test
     assert_equal @status, row['status']
   end
 
-  # avoid "Method has too many lines" and "Assignment Branch Condition size is too high"
-  # complaints from ruby cop when values are assigned to variables
   def test_user_insert
     @db.conn.transaction(:immediate)
-    @db.insert_user(credentials: @user_credentials, metadata: @user_metadata)
+    @db.insert_user(@user_fields)
     row = @db.conn.get_first_row('SELECT * FROM user')
     @db.conn.commit
-    assert_equal @user_metadata[:type], row['type']
+    assert_equal @user_fields[:type], row['type']
     assert_equal @timestamp, row['datetime_obtained']
-    assert_equal @user_metadata[:type], row['status']
-    assert_equal @user_credentials[:username], row['username']
-    assert_equal @user_credentials[:session_key], row['session_key']
-    assert_equal @user_credentials[:salt], row['salt']
+    assert_equal @user_fields[:status], row['status']
+    assert_equal @user_fields[:username], row['username']
+    assert_equal @user_fields[:session_key], row['session_key']
+    assert_equal @user_fields[:salt], row['salt']
   end
 
-  # avoid "Method has too many lines" and "Assignment Branch Condition size is too high"
-  # complaints from ruby cop when values are assigned to variables
   def test_error_insert
     @db.conn.transaction(:immediate)
     @db.insert_error(42, @timestamp, 29, 'Rate limit exceeded')
@@ -79,5 +73,20 @@ class TestScrobblerDatabaseInterface < Minitest::Test
     assert_equal @artist, row['artist']
     assert_equal @album, row['album']
     assert_equal @status, row['status']
+  end
+
+  def test_user_select
+    query = <<~SQL
+      INSERT INTO user (username, session_key, salt, type, status, datetime_obtained)
+      VALUES ('#{@user_fields[:username]}', '#{@user_fields[:session_key]}', '#{@user_fields[:salt]}',
+              '#{@user_fields[:type]}', '#{@user_fields[:status]}', '#{@timestamp}')
+    SQL
+    @db.conn.transaction(:immediate)
+    @db.conn.execute(query)
+    row = @db.select_user
+    @db.conn.commit
+    assert_equal @user_fields[:username], row['username']
+    assert_equal @user_fields[:session_key], row['session_key']
+    assert_equal @user_fields[:salt], row['salt']
   end
 end

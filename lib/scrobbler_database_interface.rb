@@ -15,7 +15,8 @@ module ScrobblerDatabaseInterface
   class DatabaseConnection
     attr_reader :conn, :connection,
                 :prepared_insert_track, :prepared_insert_user, :prepared_insert_error,
-                :prepared_select_track_to_send, :prepared_select_track_by_date
+                :prepared_select_track_to_send, :prepared_select_track_by_date,
+                :prepared_select_user, :prepared_set_user_auth_status
 
     def initialize(db_filename = DATABASE_FILENAME)
       @conn = @connection = database_ready(db_filename)
@@ -26,14 +27,16 @@ module ScrobblerDatabaseInterface
       @prepared_insert_track.execute(title, artist, album, timestamp, status)
     end
 
-    def insert_user(credentials: {}, metadata: {})
+    def insert_user(fields = {})
+      return unless fields[:session_key]
+
       @prepared_insert_user.execute(
-        metadata[:type],
-        credentials[:username],
-        credentials[:session_key],
-        credentials[:salt],
-        metadata[:datetime_obtained],
-        metadata[:status]
+        fields[:type],
+        fields[:username],
+        fields[:session_key],
+        fields[:salt],
+        fields[:datetime_obtained],
+        fields[:status]
       )
     end
 
@@ -47,11 +50,25 @@ module ScrobblerDatabaseInterface
     end
 
     def track_by_date(
-      start_time: Time.now.getutc.strftime('%s') - SECONDS_PER_DAY,
+      start_time: (Time.now.getutc - SECONDS_PER_DAY).strftime('%s'),
       end_time: Time.now.getutc.strftime('%s'),
       limit: 10
     )
       @prepared_select_track_by_date.execute(start_time, end_time, limit)
+    end
+
+    def select_user(user_type = USER_TYPE)
+      user_type = USER_TYPE unless user_type == API_KEY_TYPE
+      @conn.get_first_row(select_user_sql, user_type)
+    end
+
+    def p_select_user(user_type = USER_TYPE)
+      user_type = USER_TYPE unless user_type == API_KEY_TYPE
+      @prepared_select_user.execute(user_type)
+    end
+
+    def set_user_auth_status(status, user)
+      @prepared_set_user_auth_status.execute(status, user)
     end
 
     def database_ready(db_filename)
@@ -72,6 +89,8 @@ module ScrobblerDatabaseInterface
       @prepared_insert_error = @conn.prepare(insert_error_sql)
       @prepared_select_track_to_send = @conn.prepare(select_track_to_send_sql)
       @prepared_select_track_by_date = @conn.prepare(select_track_by_date_sql)
+      @prepared_select_user = @conn.prepare(select_user_sql)
+      @prepared_set_user_auth_status = @conn.prepare(set_user_auth_status_sql)
     end
   end
 end

@@ -84,4 +84,25 @@ module ScrobblerDatabase
       LIMIT ?
     SQL
   end
+
+  # select newest user with valid auth
+  def select_user_sql
+    <<~SQL
+      SELECT
+        id,
+        username,
+        session_key,
+        salt
+      FROM user
+      WHERE type = ? AND status = #{AUTH_ACTIVE}
+      ORDER BY datetime_obtained DESC
+      LIMIT 1
+    SQL
+  end
+
+  def set_user_auth_status_sql
+    <<~SQL
+      UPDATE user SET status = ? WHERE id = ?
+    SQL
+  end
 end
