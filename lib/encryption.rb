@@ -6,6 +6,8 @@ module Encryption
   require 'digest/sha1'
   require 'base64'
 
+  DEFAULT_SALT = 'DZ_0.416'
+
   def encrypt_encode(key, salt, plaintext)
     encryptor = OpenSSL::Cipher.new('aes-256-cbc')
     encryptor.encrypt

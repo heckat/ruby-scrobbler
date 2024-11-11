@@ -4,6 +4,8 @@ Gem::Specification.new do |s|
   s.summary  = "Last.fm music scrobbling utility"
   s.authors  = "heckat"
   s.files    = [
+                "lib/encryption.rb",
+                "lib/lastfm_service.rb",
                 "lib/music_app.rb",
                 "lib/scrobbler_database.rb",
                 "lib/scrobbler_database_interface.rb",

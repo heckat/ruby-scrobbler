@@ -27,5 +27,23 @@ module MusicApp
 
       @current_track ||= app(MUSIC_APP_NAME).current_track
     end
+
+    def static_track
+      return unless current_track
+
+      Track.new(@current_track.name.get, @current_track.artist.get, @current_track.album.get)
+    end
+  end
+
+  # standard format for track info
+  class Track
+    attr_reader :name, :title, :artist, :album, :time
+
+    def initialize(title, artist, album, time = Time.now.getutc)
+      @name = @title = title
+      @artist = artist
+      @album = album
+      @time = time
+    end
   end
 end

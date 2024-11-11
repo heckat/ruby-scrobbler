@@ -3,16 +3,17 @@
 # ScrobblerDatabaseInterface provides structured interface to SQLite database
 module ScrobblerDatabaseInterface
   require 'sqlite3'
-  require_relative './scrobbler_database'
-  require_relative './scrobbler_database_setup'
-  include ScrobblerDatabase
-  include ScrobblerDatabaseSetup
 
   DATABASE_FILENAME = "#{Dir.home}/Library/Application Support/ruby-scrobbler/scrobbler.sqlite3"
   SECONDS_PER_DAY = 86_400
 
   # DatabaseConnection manages database connection object
   class DatabaseConnection
+    require_relative './scrobbler_database'
+    require_relative './scrobbler_database_setup'
+    include ScrobblerDatabase
+    include ScrobblerDatabaseSetup
+
     attr_reader :conn, :connection,
                 :prepared_insert_track, :prepared_insert_user, :prepared_insert_error,
                 :prepared_select_track_to_send, :prepared_select_track_by_date,
