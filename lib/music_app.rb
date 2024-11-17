@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-# MusicApp provides a simple wrapper for the Appscript
-#   representation of Music.app and the current track
+# Provides a simple wrapper for the Appscript
+# representation of Music.app and its current track
 module MusicApp
   require 'rb-scpt'
   include Appscript
 
   MUSIC_APP_NAME = 'Music'
 
-  # the Player class holds the reference to the current track
-  class Player
+  # Maintains an Appscript reference to the track currently playing
+  class MusicPlayer
     def initialize
       @current_track = nil
     end
@@ -25,7 +25,7 @@ module MusicApp
     def current_track
       return unless playing?
 
-      @current_track ||= app(MUSIC_APP_NAME).current_track
+      @current_track ||= Appscript.app(MUSIC_APP_NAME).current_track
     end
 
     def static_track
@@ -35,15 +35,27 @@ module MusicApp
     end
   end
 
-  # standard format for track info
+  # Defines a standard format for track info
   class Track
     attr_reader :name, :title, :artist, :album, :time
+    attr_accessor :sent
 
     def initialize(title, artist, album, time = Time.now.getutc)
       @name = @title = title
       @artist = artist
       @album = album
       @time = time
+      @sent = false
+    end
+
+    def equals(track)
+      !track.nil? && track&.name == @name && track&.artist == @artist && track&.album == @album
+    end
+
+    alias == equals
+
+    def to_s
+      "#{@name} - #{@artist} (#{@album}) #{@sent ? '[sent]' : ''}"
     end
   end
 end
