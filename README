@@ -1,8 +1,0 @@
-# Ruby Scrobbler
-
-A minimal ruby utility to monitor Music.app and submit plays to last.fm
-
-## Dependencies
-* rb-scpt
-* sqlite3
-* lastfm
